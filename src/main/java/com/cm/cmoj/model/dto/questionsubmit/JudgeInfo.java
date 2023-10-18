@@ -1,8 +1,11 @@
 package com.cm.cmoj.model.dto.questionsubmit;
 
+import lombok.Data;
+
 /**
  * 判题信息
  */
+@Data
 public class JudgeInfo {
 
     /**

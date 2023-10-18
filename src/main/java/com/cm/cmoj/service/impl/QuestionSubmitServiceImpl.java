@@ -7,6 +7,7 @@ import com.cm.cmoj.common.ErrorCode;
 import com.cm.cmoj.constant.CommonConstant;
 import com.cm.cmoj.exception.BusinessException;
 import com.cm.cmoj.model.dto.question.QuestionQueryRequest;
+import com.cm.cmoj.model.dto.questionsubmit.JudgeInfo;
 import com.cm.cmoj.model.dto.questionsubmit.QuestionSubmitAddRequest;
 import com.cm.cmoj.model.dto.questionsubmit.QuestionSubmitQueryRequest;
 import com.cm.cmoj.model.entity.Question;
@@ -34,11 +35,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/**
-* @author 86166
-* @description 针对表【question_submit(题目提交)】的数据库操作Service实现
-* @createDate 2023-09-16 19:17:14
-*/
+
 @Service
 public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper, QuestionSubmit>
     implements QuestionSubmitService{
@@ -50,9 +47,6 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
     /**
      * 提交题目
      *
-     * @param  questionSubmitAd
-     * @param loginUser
-     * @return
      */
     @Override
     public long doQuestionSubmit(QuestionSubmitAddRequest questionSubmitAd, User loginUser) {
@@ -80,6 +74,10 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
         questionSubmit.setCode(questionSubmitAd.getCode());
         questionSubmit.setLanguage(language);
         //Todo 初始化状态
+//        JudgeInfo judgeInfo = new JudgeInfo();
+//        judgeInfo.setMessage("1");
+//        judgeInfo.setMemory(1L);
+//        judgeInfo.setTime(1L);
         questionSubmit.setJudgeInfo("{}");
 
         questionSubmit.setStatus(QuestionSubmitStatusEnum.WAITING.getValue());
@@ -95,8 +93,6 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
     /**
      * 获取查询包装类
      *
-     * @param questionSubmitQueryRequest
-     * @return
      */
     @Override
     public QueryWrapper<QuestionSubmit> getQueryWrapper(QuestionSubmitQueryRequest questionSubmitQueryRequest) {
@@ -121,92 +117,43 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
                 sortField);
         return queryWrapper;
     }
-    
+
+    /**
+     *
+     */
     @Override
-    public QuestionSubmitVO getQuestionSubmitVO(QuestionSubmit questionSubmit, HttpServletRequest request) {
+    public QuestionSubmitVO getQuestionSubmitVO(QuestionSubmit questionSubmit, User loginUser) {
         QuestionSubmitVO questionSubmitVO = QuestionSubmitVO.objToVo(questionSubmit);
-        long questionSubmitId = questionSubmit.getId();
-        // 1. 关联查询用户信息
-        Long userId = questionSubmit.getUserId();
-        User user = null;
-        if (userId != null && userId > 0) {
-            user = userService.getById(userId);
+        if(loginUser.getId().equals(questionSubmit.getUserId())&& loginUser.getUserRole().equals("admin"))
+        {
+            questionSubmitVO.setCode(null);
         }
-        UserVO userVO = userService.getUserVO(user);
-        questionSubmitVO.setUserId(userId);
         return questionSubmitVO;
     }
 
+    /**
+     * 原始分页数据转换为VO分页数据
+     */
     @Override
-    public Page<QuestionSubmitVO> getQuestionSubmitVOPage(Page<QuestionSubmit> questionSubmitPage, HttpServletRequest request) {
+    public Page<QuestionSubmitVO> getQuestionSubmitVOPage(Page<QuestionSubmit> questionSubmitPage, User loginUser) {
+        //获取分页数据的每一条list
         List<QuestionSubmit> questionSubmitList = questionSubmitPage.getRecords();
+        //把分页的条数等固定数据set到Vo中
         Page<QuestionSubmitVO> questionSubmitVOPage = new Page<>(questionSubmitPage.getCurrent(), questionSubmitPage.getSize(), questionSubmitPage.getTotal());
+        //检测分页数据是否为空
         if (CollectionUtils.isEmpty(questionSubmitList)) {
             return questionSubmitVOPage;
         }
-        // 1. 关联查询用户信息
-        Set<Long> userIdSet = questionSubmitList.stream().map(QuestionSubmit::getUserId).collect(Collectors.toSet());
-        Map<Long, List<User>> userIdUserListMap = userService.listByIds(userIdSet).stream()
-                .collect(Collectors.groupingBy(User::getId));
-        // 填充信息
-        List<QuestionSubmitVO> questionSubmitVOList = questionSubmitList.stream().map(questionSubmit -> {
-            QuestionSubmitVO questionSubmitVO = QuestionSubmitVO.objToVo(questionSubmit);
-            Long userId = questionSubmit.getUserId();
-            User user = null;
-            if (userIdUserListMap.containsKey(userId)) {
-                user = userIdUserListMap.get(userId).get(0);
-            }
-            return questionSubmitVO;
-        }).collect(Collectors.toList());
+        // 遍历填充信息
+        List<QuestionSubmitVO> questionSubmitVOList = questionSubmitList.stream()
+                .map(questionSubmit -> getQuestionSubmitVO(questionSubmit,loginUser))
+                .collect(Collectors.toList());
         questionSubmitVOPage.setRecords(questionSubmitVOList);
         return questionSubmitVOPage;
     }
 
-    /**
-     * 封装了事务的方法
-     *
-     * @param userId
-     * @param questionId
-     * @return
-     */
-//    @Override
-//    @Transactional(rollbackFor = Exception.class)
-//    public int doQuestionSubmitInner(long userId, long questionId) {
-//        QuestionSubmit questionSubmit = new QuestionSubmit();
-//        questionSubmit.setUserId(userId);
-//        questionSubmit.setQuestionId(questionId);
-//        QueryWrapper<QuestionSubmit> questionQueryWrapper = new QueryWrapper<>(questionSubmit);
-//        QuestionSubmit oldQuestionSubmit = this.getOne(questionQueryWrapper);
-//        boolean result;
-//        // 已提交题目
-//        if (oldQuestionSubmit != null) {
-//            result = this.remove(questionQueryWrapper);
-//            if (result) {
-//                // 提交题目数 - 1
-//                result = questionService.update()
-//                        .eq("id", questionId)
-//                        .gt("thumbNum", 0)
-//                        .setSql("thumbNum = thumbNum - 1")
-//                        .update();
-//                return result ? -1 : 0;
-//            } else {
-//                throw new BusinessException(ErrorCode.SYSTEM_ERROR);
-//            }
-//        } else {
-//            // 未提交题目
-//            result = this.save(questionSubmit);
-//            if (result) {
-//                // 提交题目数 + 1
-//                result = questionService.update()
-//                        .eq("id", questionId)
-//                        .setSql("thumbNum = thumbNum + 1")
-//                        .update();
-//                return result ? 1 : 0;
-//            } else {
-//                throw new BusinessException(ErrorCode.SYSTEM_ERROR);
-//            }
-//        }
-//    }
+
+
 }
 
 

@@ -13,6 +13,7 @@ import com.cm.cmoj.model.dto.questionsubmit.QuestionSubmitQueryRequest;
 import com.cm.cmoj.model.entity.Question;
 import com.cm.cmoj.model.entity.QuestionSubmit;
 import com.cm.cmoj.model.entity.User;
+import com.cm.cmoj.model.vo.QuestionSubmitVO;
 import com.cm.cmoj.service.QuestionSubmitService;
 import com.cm.cmoj.service.QuestionSubmitService;
 import com.cm.cmoj.service.UserService;
@@ -26,12 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
-/**
- * 题目提交接口
- *
- * @author <a href="https://github.com/liyupi">程序员鱼皮</a>
- * @from <a href="https://yupi.icu">编程导航知识星球</a>
- */
+
 @RestController
 @RequestMapping("/question_submit")
 @Slf4j
@@ -43,24 +39,25 @@ public class QuestionSubmitController {
     @Resource
     private UserService userService;
 
-
+    /**
+     * 除了管理员，只有自己和管理员可以看到自己提交的代码
+     *
+     */
     @ApiOperation("管理员分页展示数据")
     @PostMapping("/list/page")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<Page<QuestionSubmit>> listQuestionByPage(@RequestBody QuestionSubmitQueryRequest questionQueryRequest,
-                                                           HttpServletRequest request) {
+    public BaseResponse<Page<QuestionSubmitVO>> listQuestionByPage(@RequestBody QuestionSubmitQueryRequest questionQueryRequest,
+                                                                   HttpServletRequest request) {
         long current = questionQueryRequest.getCurrent();
         long size = questionQueryRequest.getPageSize();
         Page<QuestionSubmit> questionSubmitPage = questionSubmitService.page(new Page<>(current, size),
                 questionSubmitService.getQueryWrapper(questionQueryRequest));
-        return ResultUtils.success(questionSubmitPage);
+       final User loginUser = userService.getLoginUser(request);
+        return ResultUtils.success(questionSubmitService.getQuestionSubmitVOPage(questionSubmitPage,loginUser));
     }
+
     /**
-     * 提交题目
-     *
-     * @param questionSubmitAddRequest
-     * @param request
-     * @return resultNum 本次题目变化数
+     * 用户提交题目
      */
     @ApiOperation("用户提交题目")
     @PostMapping("/")
