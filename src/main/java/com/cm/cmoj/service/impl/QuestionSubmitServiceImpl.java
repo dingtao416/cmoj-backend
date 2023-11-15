@@ -6,8 +6,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.cm.cmoj.common.ErrorCode;
 import com.cm.cmoj.constant.CommonConstant;
 import com.cm.cmoj.exception.BusinessException;
-import com.cm.cmoj.model.dto.question.QuestionQueryRequest;
-import com.cm.cmoj.model.dto.questionsubmit.JudgeInfo;
+import com.cm.cmoj.judge.JudgeService;
 import com.cm.cmoj.model.dto.questionsubmit.QuestionSubmitAddRequest;
 import com.cm.cmoj.model.dto.questionsubmit.QuestionSubmitQueryRequest;
 import com.cm.cmoj.model.entity.Question;
@@ -16,8 +15,6 @@ import com.cm.cmoj.model.entity.User;
 import com.cm.cmoj.model.enums.QuestionSubmitLanguageEnum;
 import com.cm.cmoj.model.enums.QuestionSubmitStatusEnum;
 import com.cm.cmoj.model.vo.QuestionSubmitVO;
-import com.cm.cmoj.model.vo.QuestionVO;
-import com.cm.cmoj.model.vo.UserVO;
 import com.cm.cmoj.service.QuestionService;
 import com.cm.cmoj.service.QuestionSubmitService;
 import com.cm.cmoj.mapper.QuestionSubmitMapper;
@@ -25,14 +22,12 @@ import com.cm.cmoj.service.UserService;
 import com.cm.cmoj.utils.SqlUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 
@@ -42,52 +37,52 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
 
     @Resource
     private QuestionService questionService;
+
     @Resource
     private UserService userService;
+
+    @Resource
+    @Lazy
+    private JudgeService judgeService;
     /**
      * 提交题目
      *
      */
     @Override
-    public long doQuestionSubmit(QuestionSubmitAddRequest questionSubmitAd, User loginUser) {
-        //获取问题id 根据问题id查询id
-        Long questionId = questionSubmitAd.getQuestionId();
-        Question question = questionService.getById(questionId);
-        //获取
-        String language = questionSubmitAd.getLanguage();
-        QuestionSubmitLanguageEnum enumByValue = QuestionSubmitLanguageEnum.getEnumByValue(language);
-        //判断编程语言是否合法
-        if (enumByValue == null) {
-            throw  new BusinessException(ErrorCode.PARAMS_ERROR,"编程语言错误");
+    public long doQuestionSubmit(QuestionSubmitAddRequest questionSubmitAddRequest, User loginUser) {
+        // 校验编程语言是否合法
+        String language = questionSubmitAddRequest.getLanguage();
+        QuestionSubmitLanguageEnum languageEnum = QuestionSubmitLanguageEnum.getEnumByValue(language);
+        if (languageEnum == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "编程语言错误");
         }
-        //判断请求数据中question是否合法
+        long questionId = questionSubmitAddRequest.getQuestionId();
+        // 判断实体是否存在，根据类别获取实体
+        Question question = questionService.getById(questionId);
         if (question == null) {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
         }
         // 是否已提交题目
-        //获取登录用户id
         long userId = loginUser.getId();
-        //设置返回数据的属性值 并插入到数据库中
+        // 每个用户串行提交题目
         QuestionSubmit questionSubmit = new QuestionSubmit();
-        questionSubmit.setQuestionId(questionId);
         questionSubmit.setUserId(userId);
-        questionSubmit.setCode(questionSubmitAd.getCode());
+        questionSubmit.setQuestionId(questionId);
+        questionSubmit.setCode(questionSubmitAddRequest.getCode());
         questionSubmit.setLanguage(language);
-        //Todo 初始化状态
-//        JudgeInfo judgeInfo = new JudgeInfo();
-//        judgeInfo.setMessage("1");
-//        judgeInfo.setMemory(1L);
-//        judgeInfo.setTime(1L);
-        questionSubmit.setJudgeInfo("{}");
-
+        // 设置初始状态
         questionSubmit.setStatus(QuestionSubmitStatusEnum.WAITING.getValue());
-        //插入数据
+        questionSubmit.setJudgeInfo("{}");
         boolean save = this.save(questionSubmit);
-        if (!save) {
-            throw new BusinessException(ErrorCode.SYSTEM_ERROR,"数据插入失败");
+        if (!save){
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "数据插入失败");
         }
-        //返回提交题目记录的id
-        return questionSubmit.getId();
+        Long questionSubmitId = questionSubmit.getId();
+        // 执行判题服务
+        CompletableFuture.runAsync(() -> {
+            judgeService.doJudge(questionSubmitId);
+        });
+        return questionSubmitId;
     }
 
     /**
@@ -120,6 +115,9 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
 
     /**
      *
+     * @param  questionSubmit
+     * @param  loginUser
+     * @return QuestionSubmitVO
      */
     @Override
     public QuestionSubmitVO getQuestionSubmitVO(QuestionSubmit questionSubmit, User loginUser) {

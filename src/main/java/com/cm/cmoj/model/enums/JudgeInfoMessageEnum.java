@@ -7,17 +7,17 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * 用户角色枚举
+ * 判题信息消息枚举
  *
- * @author <a href="https://github.com/liyupi">程序员鱼皮</a>
- * @from <a href="https://yupi.icu">编程导航知识星球</a>
+ *
+ *
  */
 public enum JudgeInfoMessageEnum {
 
     ACCEPTED("成功", "Accepted"),
-    WRONG_ANSWER("答案错误", "admin"),
+    WRONG_ANSWER("答案错误", "Wrong Answer"),
     COMPILE_ERROR("Compile Error", "编译错误"),
-    MEMORY_LIMIT_EXCEEDED("内存溢出", "内存溢出"),
+    MEMORY_LIMIT_EXCEEDED("", "内存溢出"),
     TIME_LIMIT_EXCEEDED("Time Limit Exceeded", "超时"),
     PRESENTATION_ERROR("Presentation Error", "展示错误"),
     WAITING("Waiting", "等待中"),
@@ -38,7 +38,7 @@ public enum JudgeInfoMessageEnum {
     /**
      * 获取值列表
      *
-     * @return
+     *
      */
     public static List<String> getValues() {
         return Arrays.stream(values()).map(item -> item.value).collect(Collectors.toList());
@@ -47,8 +47,8 @@ public enum JudgeInfoMessageEnum {
     /**
      * 根据 value 获取枚举
      *
-     * @param value
-     * @return
+     *
+     *
      */
     public static JudgeInfoMessageEnum getEnumByValue(String value) {
         if (ObjectUtils.isEmpty(value)) {

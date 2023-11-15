@@ -9,8 +9,8 @@ import java.util.stream.Collectors;
 /**
  * 用户角色枚举
  *
- * @author <a href="https://github.com/liyupi">程序员鱼皮</a>
- * @from <a href="https://yupi.icu">编程导航知识星球</a>
+ *
+ *
  */
 public enum QuestionSubmitLanguageEnum {
 
@@ -18,7 +18,8 @@ public enum QuestionSubmitLanguageEnum {
     PYTHON("python", "python"),
     PHP("php", "php"),
     C("c", "c"),
-    CPLUSPLUS("c++", "c++");
+    CPLUSPLUS("cpp", "cpp"),
+    GOLANG("go","go");
 
 
     private final String text;

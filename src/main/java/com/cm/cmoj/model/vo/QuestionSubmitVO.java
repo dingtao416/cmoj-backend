@@ -2,9 +2,8 @@ package com.cm.cmoj.model.vo;
 
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
-import com.cm.cmoj.model.dto.questionsubmit.JudgeInfo;
+import com.cm.cmoj.judge.codesandbox.model.JudgeInfo;
 import com.cm.cmoj.model.entity.QuestionSubmit;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;

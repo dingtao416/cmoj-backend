@@ -11,10 +11,15 @@ import com.cm.cmoj.exception.BusinessException;
 import com.cm.cmoj.exception.ThrowUtils;
 import com.cm.cmoj.model.dto.question.*;
 
+import com.cm.cmoj.model.dto.questionsubmit.QuestionSubmitAddRequest;
+import com.cm.cmoj.model.dto.questionsubmit.QuestionSubmitQueryRequest;
 import com.cm.cmoj.model.entity.Question;
+import com.cm.cmoj.model.entity.QuestionSubmit;
 import com.cm.cmoj.model.entity.User;
+import com.cm.cmoj.model.vo.QuestionSubmitVO;
 import com.cm.cmoj.model.vo.QuestionVO;
 import com.cm.cmoj.service.QuestionService;
+import com.cm.cmoj.service.QuestionSubmitService;
 import com.cm.cmoj.service.UserService;
 import com.google.gson.Gson;
 import io.swagger.annotations.Api;
@@ -41,6 +46,8 @@ public class QuestionController {
 
     @Resource
     private QuestionService questionService;
+    @Resource
+    private QuestionSubmitService questionSubmitService;
 
     @Resource
     private UserService userService;
@@ -64,9 +71,6 @@ public class QuestionController {
         }
         Question question = new Question();
         List<JudgeCase> judgeCase = questionAddRequest.getJudgeCase();
-        for (JudgeCase judge: judgeCase) {
-            System.out.println(judge.getInput());
-        }
         JudgeConfig judgeConfig = questionAddRequest.getJudgeConfig();
         if (judgeConfig != null) {
             question.setJudgeConfig(GSON.toJson(judgeConfig));
@@ -191,7 +195,30 @@ public class QuestionController {
         }
         return ResultUtils.success(questionService.getQuestionVO(question, request));
     }
+    /**
+     * 根据 id 获取
+     *
+     * @param id
+     * @return
+     */
+    @ApiOperation("根据题目id获取题目")
+    @GetMapping("/get")
+    public BaseResponse<Question> getQuestionById(long id, HttpServletRequest request) {
+        if (id <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        Question question = questionService.getById(id);
+        if (question == null) {
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
+        }
+        User loginuser = userService.getLoginUser(request);
+        if(!loginuser.getId().equals(question.getUserId())&& userService.isAdmin(loginuser))
+        {
 
+            return new BaseResponse(ErrorCode.PARAMS_ERROR);
+        }
+        return ResultUtils.success(question);
+    }
     /**
      * 分页获取列表（封装类）
      *
@@ -283,5 +310,44 @@ public class QuestionController {
         }
         boolean result = questionService.updateById(question);
         return ResultUtils.success(result);
+    }
+
+
+
+
+
+    /**
+     * 除了管理员，只有自己和管理员可以看到自己提交的代码
+     *
+     */
+    @ApiOperation("管理员分页展示数据")
+    @PostMapping("/question_submit/list/page")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Page<QuestionSubmitVO>> listQuestionByPage(@RequestBody QuestionSubmitQueryRequest questionQueryRequest,
+                                                                   HttpServletRequest request) {
+        long current = questionQueryRequest.getCurrent();
+        long size = questionQueryRequest.getPageSize();
+        Page<QuestionSubmit> questionSubmitPage = questionSubmitService.page(new Page<>(current, size),
+                questionSubmitService.getQueryWrapper(questionQueryRequest));
+        final User loginUser = userService.getLoginUser(request);
+        return ResultUtils.success(questionSubmitService.getQuestionSubmitVOPage(questionSubmitPage,loginUser));
+    }
+
+    /**
+     * 用户提交题目
+     */
+    @ApiOperation("用户提交题目")
+    @PostMapping("/question_submit/do")
+    public BaseResponse<Integer> doThumb(@RequestBody QuestionSubmitAddRequest questionSubmitAddRequest,
+                                         HttpServletRequest request) {
+        if (questionSubmitAddRequest == null || questionSubmitAddRequest.getQuestionId() <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        // 登录才能提交题目
+        final User loginUser = userService.getLoginUser(request);
+        long postId = questionSubmitAddRequest.getQuestionId();
+        //提交的题目记录id
+        long questionSubmitId = questionSubmitService.doQuestionSubmit(questionSubmitAddRequest, loginUser);
+        return ResultUtils.success(null);
     }
 }
