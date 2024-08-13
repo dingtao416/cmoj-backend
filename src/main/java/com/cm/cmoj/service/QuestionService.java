@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.cm.cmoj.model.vo.QuestionVO;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
 * @author 86166
@@ -16,7 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 */
 public interface QuestionService extends IService<Question> {
     /**
-     * 校验
+     * 校验题目
      *
      * @param question
      * @param add
@@ -49,11 +50,12 @@ public interface QuestionService extends IService<Question> {
     QuestionVO getQuestionVO(Question question, HttpServletRequest request);
 
     /**
-     * 分页获取帖子封装
+     * 分页获取题目封装
      *
      * @param questionPage
      * @param request
      * @return
      */
     Page<QuestionVO> getQuestionVOPage(Page<Question> questionPage, HttpServletRequest request);
+    List<Question> getAllQuestion();
 }

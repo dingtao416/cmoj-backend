@@ -19,6 +19,7 @@ import com.cm.cmoj.mapper.QuestionMapper;
 import com.cm.cmoj.service.UserService;
 import com.cm.cmoj.utils.SqlUtils;
 import com.google.gson.Gson;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -46,6 +47,7 @@ import java.util.stream.Collectors;
 * @createDate 2023-09-16 19:15:19
 */
 @Service
+@Slf4j
 public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
     implements QuestionService {
 
@@ -53,6 +55,8 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
 
     @Resource
     private UserService userService;
+
+
 
 
     /**
@@ -174,6 +178,13 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
         }).collect(Collectors.toList());
         questionVOPage.setRecords(questionVOList);
         return questionVOPage;
+    }
+
+
+    public List<Question> getAllQuestion() {
+        List<Question> questions = this.baseMapper.selectList(new QueryWrapper<>());
+        log.info("getAllQuestion:{}",questions);
+        return questions;
     }
 
 

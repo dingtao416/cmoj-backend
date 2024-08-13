@@ -60,6 +60,7 @@ public class JudgeServiceImpl implements JudgeService {
         questionSubmitUpdate.setId(questionSubmitId);
         questionSubmitUpdate.setStatus(QuestionSubmitStatusEnum.RUNNING.getValue());
         boolean update = questionSubmitService.updateById(questionSubmitUpdate);
+        questionService.updateById(question);
         if (!update) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "题目状态更新错误");
         }
@@ -95,7 +96,15 @@ public class JudgeServiceImpl implements JudgeService {
         questionSubmitUpdate.setJudgeInfo(JSONUtil.toJsonStr(judgeInfo));
         update = questionSubmitService.updateById(questionSubmitUpdate);
         if (!update) {
-            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "题目状态更新错误");
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "题目提交状态更新错误");
+        }
+        if(judgeInfo.getMessage().equals("Accepted")){
+            question.setAcceptedNum(question.getAcceptedNum()+1);
+        }
+        question.setSubmitNum(question.getSubmitNum() + 1);
+        boolean b = questionService.updateById(question);
+        if (!b) {
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "题目通过与提交数目更新错误");
         }
         QuestionSubmit questionSubmitResult = questionSubmitService.getById(questionId);
         return questionSubmitResult;

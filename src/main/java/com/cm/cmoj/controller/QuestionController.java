@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -219,6 +220,23 @@ public class QuestionController {
         }
         return ResultUtils.success(question);
     }
+    @ApiOperation("获取随机题目")
+    @GetMapping("/getRangeQuestion")
+    public BaseResponse<QuestionVO> getQuestionById(HttpServletRequest request) {
+        long totalQuestions = questionService.count();
+        if (totalQuestions == 0) {
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
+        }
+        int randomPage = (int) (Math.random() * (totalQuestions / 1)) + 1; // assuming 1 question per page for simplicity
+        Page<Question> page = new Page<>(randomPage, 1);
+        List<Question> questions = questionService.page(page).getRecords();
+        if (questions.isEmpty()) {
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
+        }
+        QuestionVO questionVO = QuestionVO.objToVo(questions.get(0));
+        questionVO.setUserVO(userService.getUserVO(userService.getLoginUser(request)));
+        return ResultUtils.success(questionVO);
+    }
     /**
      * 分页获取列表（封装类）
      *
@@ -313,9 +331,6 @@ public class QuestionController {
     }
 
 
-
-
-
     /**
      * 除了管理员，只有自己和管理员可以看到自己提交的代码
      *
@@ -325,6 +340,7 @@ public class QuestionController {
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Page<QuestionSubmitVO>> listQuestionByPage(@RequestBody QuestionSubmitQueryRequest questionQueryRequest,
                                                                    HttpServletRequest request) {
+        log.info("listQuestionByPage questionQueryRequest:" + questionQueryRequest.toString());
         long current = questionQueryRequest.getCurrent();
         long size = questionQueryRequest.getPageSize();
         Page<QuestionSubmit> questionSubmitPage = questionSubmitService.page(new Page<>(current, size),

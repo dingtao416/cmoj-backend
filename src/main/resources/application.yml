@@ -8,6 +8,7 @@ spring:
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
+
   # session 配置
   session:
     # todo 取消注释开启分布式 session（须先配置 Redis）
@@ -18,7 +19,7 @@ spring:
   # todo 需替换配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/cmoj
+    url: jdbc:mysql://127.0.0.1:3306/cmoj
     username: root
     password: 123456
   # Redis 配置
@@ -33,7 +34,7 @@ spring:
   # todo 需替换配置，然后取消注释
 #  elasticsearch:
 #    uris: http://localhost:9200
-#    username: root
+#    username: root12
 #    password: 123456
   # 文件上传
   servlet:
@@ -90,3 +91,8 @@ cos:
 # 代码沙箱配置
 codesandbox:
   type: remote
+jwt:
+  tokenHeader: Authorization #JWT存储的请求头
+  secret: mall-jwt-test #jwt加解密使用的密钥
+  expiration: 36000000 #JWT的超时时间
+  tokenHead: Bearer #JWT负载中拿到的开头
