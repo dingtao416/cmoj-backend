@@ -1,5 +1,6 @@
 package com.cm.cmoj.controller;
 
+import cn.hutool.core.lang.UUID;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.cm.cmoj.annotation.MdcDot;
 import com.cm.cmoj.model.vo.LoginUserVO;
@@ -20,6 +21,9 @@ import com.cm.cmoj.model.dto.user.UserUpdateMyRequest;
 import com.cm.cmoj.model.dto.user.UserUpdateRequest;
 import com.cm.cmoj.model.entity.User;
 import com.cm.cmoj.service.UserService;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -32,12 +36,9 @@ import me.chanjar.weixin.common.bean.oauth2.WxOAuth2AccessToken;
 import me.chanjar.weixin.mp.api.WxMpService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.util.DigestUtils;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * 用户接口
@@ -54,6 +55,11 @@ public class UserController {
     private UserService userService;
     @Resource
     private JwtKit jwtKit;
+    /**
+     * 盐值，混淆密码
+     */
+    private static final String SALT = "dt";
+    private static final String DEFAULT_AVATAR = "/avatar/default.png";
 
 
 
@@ -77,7 +83,7 @@ public class UserController {
         if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword)) {
             return null;
         }
-        long result = userService.userRegister(userName,userAccount, userPassword, checkPassword);
+        long result = userService.userRegister(userName,userAccount, userPassword, checkPassword,DEFAULT_AVATAR);
         return ResultUtils.success(result);
     }
 
@@ -286,8 +292,32 @@ public class UserController {
         User user = new User();
         BeanUtils.copyProperties(userUpdateMyRequest, user);
         user.setId(loginUser.getId());
+        // 2. 加密
+        String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userUpdateMyRequest.getUserPassword()).getBytes());
+        user.setUserPassword(encryptPassword);
         boolean result = userService.updateById(user);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         return ResultUtils.success(true);
+    }
+    @PostMapping("/upload")
+    public BaseResponse<String> uploadImg(@RequestPart("multipartFile") MultipartFile multipartFile) {
+        if (!multipartFile.isEmpty()) {
+            String path = null;
+            try {
+                String uuid = UUID.randomUUID().toString().replace("-", "").toLowerCase();
+                String originalFilename = multipartFile.getOriginalFilename();
+                assert originalFilename != null;
+                int indexOf = originalFilename.lastIndexOf(".");
+                String substring = originalFilename.substring(indexOf);
+                String filename = uuid.concat(substring);
+                multipartFile.transferTo(new File("D:\\星球项目\\在线判题\\cmoj-fronted\\public\\avatar\\"+filename));
+                // 响应给前端的文件路径
+                path = "/avatar/".concat(filename);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            return ResultUtils.success(path);
+        }
+        return ResultUtils.error(ErrorCode.PARAMS_ERROR,"上传文件失败");
     }
 }

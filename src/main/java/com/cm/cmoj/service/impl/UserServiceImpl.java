@@ -28,12 +28,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
-/**
- * 用户服务实现
- *
- * @author <a href="https://github.com/liyupi">程序员鱼皮</a>
- * @from <a href="https://yupi.icu">编程导航知识星球</a>
- */
+
+
 @Service
 @Slf4j
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
@@ -41,12 +37,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     /**
      * 盐值，混淆密码
      */
-    private static final String SALT = "yupi";
+    private static final String SALT = "dt";
 
 
 
     @Override
-    public long userRegister(String userName, String userAccount, String userPassword, String checkPassword) {
+    public long userRegister(String userName, String userAccount, String userPassword, String checkPassword,String avatar) {
             // 1. 校验
             if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword)) {
                 throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数为空");
@@ -76,6 +72,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 user.setUserName(userName);
                 user.setUserAccount(userAccount);
                 user.setUserPassword(encryptPassword);
+                user.setUserAvatar(avatar);
                 boolean saveResult = this.save(user);
                 if (!saveResult) {
                     throw new BusinessException(ErrorCode.SYSTEM_ERROR, "注册失败，数据库错误");

@@ -13,6 +13,7 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
+import java.util.HashSet;
 
 /**
  * author DingTao
@@ -31,9 +32,11 @@ public class MdcAspect implements ApplicationContextAware  {
     }
     @Around("mdcDot()")
     public Object mdcDot(ProceedingJoinPoint joinPoint) throws Throwable {
+        HashSet<Object> objects = new HashSet<>();
+
         log.info("检测到接口切面");
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
-        signature.getMethod()
+        signature.getMethod();
         return joinPoint.proceed();
     }
 }
