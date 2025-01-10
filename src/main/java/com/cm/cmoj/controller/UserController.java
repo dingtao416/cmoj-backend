@@ -2,10 +2,8 @@ package com.cm.cmoj.controller;
 
 import cn.hutool.core.lang.UUID;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.cm.cmoj.annotation.MdcDot;
-import com.cm.cmoj.model.vo.LoginUserVO;
-import com.cm.cmoj.model.vo.UserVO;
 import com.cm.cmoj.annotation.AuthCheck;
+import com.cm.cmoj.annotation.MdcDot;
 import com.cm.cmoj.common.BaseResponse;
 import com.cm.cmoj.common.DeleteRequest;
 import com.cm.cmoj.common.ErrorCode;
@@ -13,32 +11,24 @@ import com.cm.cmoj.common.ResultUtils;
 import com.cm.cmoj.constant.UserConstant;
 import com.cm.cmoj.exception.BusinessException;
 import com.cm.cmoj.exception.ThrowUtils;
-import com.cm.cmoj.model.dto.user.UserAddRequest;
-import com.cm.cmoj.model.dto.user.UserLoginRequest;
-import com.cm.cmoj.model.dto.user.UserQueryRequest;
-import com.cm.cmoj.model.dto.user.UserRegisterRequest;
-import com.cm.cmoj.model.dto.user.UserUpdateMyRequest;
-import com.cm.cmoj.model.dto.user.UserUpdateRequest;
+import com.cm.cmoj.model.dto.user.*;
 import com.cm.cmoj.model.entity.User;
+import com.cm.cmoj.model.vo.LoginUserVO;
+import com.cm.cmoj.model.vo.UserVO;
 import com.cm.cmoj.service.UserService;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.cm.cmoj.utils.JwtKit;
 import lombok.extern.slf4j.Slf4j;
-import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
-import me.chanjar.weixin.common.bean.oauth2.WxOAuth2AccessToken;
-import me.chanjar.weixin.mp.api.WxMpService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
 
 /**
  * 用户接口
@@ -136,9 +126,6 @@ public class UserController {
         return ResultUtils.success(userService.getLoginUserVO(user));
     }
 
-    // endregion
-
-    // region 增删改查
 
     /**
      * 创建用户
@@ -206,7 +193,6 @@ public class UserController {
      * @return
      */
     @GetMapping("/get")
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<User> getUserById(long id, HttpServletRequest request) {
         if (id <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);

@@ -46,6 +46,10 @@ public class QuestionUpdateRequest implements Serializable {
      * 判题用例 （json数组）
      */
     private List<JudgeCase> judgeCase;
+    /**
+     * 难度
+     */
+    private String difficulty;
 
     /**
      * 判题配置 （json数组）

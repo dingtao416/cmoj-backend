@@ -1,4 +1,6 @@
 spring:
+  main:
+    allow-circular-references: true
   application:
     name: cmoj-backend
   # 默认 dev 环境
@@ -29,7 +31,7 @@ spring:
     host: localhost
     port: 6379
     timeout: 5000
-    #password: 123456
+#    password: 123456
   # Elasticsearch 配置
   # todo 需替换配置，然后取消注释
 #  elasticsearch:
@@ -50,6 +52,10 @@ server:
     session:
       cookie:
         max-age: 2592000
+mybatis:
+  mapper-locations: classpath*:mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: false
@@ -96,3 +102,6 @@ jwt:
   secret: mall-jwt-test #jwt加解密使用的密钥
   expiration: 36000000 #JWT的超时时间
   tokenHead: Bearer #JWT负载中拿到的开头
+token:
+  expireTime: 36000000
+  secretKey: abcdefghijklmnopqrstuvwxyz

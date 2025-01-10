@@ -3,30 +3,31 @@ package com.cm.cmoj.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.cm.cmoj.constant.UserConstant;
-import com.cm.cmoj.exception.BusinessException;
-import com.cm.cmoj.model.dto.user.UserQueryRequest;
-import com.cm.cmoj.model.vo.LoginUserVO;
-import com.cm.cmoj.model.vo.UserVO;
 import com.cm.cmoj.common.ErrorCode;
 import com.cm.cmoj.constant.CommonConstant;
+import com.cm.cmoj.constant.UserConstant;
+import com.cm.cmoj.exception.BusinessException;
+import com.cm.cmoj.exception.NotFoundException;
 import com.cm.cmoj.mapper.UserMapper;
+import com.cm.cmoj.model.dto.user.UserQueryRequest;
 import com.cm.cmoj.model.entity.User;
 import com.cm.cmoj.model.enums.UserRoleEnum;
+import com.cm.cmoj.model.vo.LoginUserVO;
+import com.cm.cmoj.model.vo.UserVO;
 import com.cm.cmoj.service.UserService;
 import com.cm.cmoj.utils.SqlUtils;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 
@@ -162,12 +163,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
     }
 
-    /**
-     * 获取当前登录用户
-     *
-     * @param request
-     * @return
-     */
 
 
     /**
@@ -275,4 +270,27 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 sortField);
         return queryWrapper;
     }
+    @Autowired
+    private UserMapper userMapper;
+    @Override
+    public User loadUserByUsername(String username) throws NotFoundException {
+        User user = userMapper.findByUsername(username);
+        if (user == null) {
+            throw new NotFoundException("用户不存在");
+        }
+        return user;
+    }
+
+
+
+    @Override
+    public User findUserById(Long id) {
+        User user = userMapper.findById(id);
+        if (user == null) {
+            throw new NotFoundException("用户不存在");
+        }
+        return user;
+    }
+
+
 }

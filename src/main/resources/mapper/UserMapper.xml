@@ -15,7 +15,20 @@
         <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
         <result property="isDelete" column="isDelete" jdbcType="TINYINT"/>
     </resultMap>
+    <!--按用户名查询User-->
+    <select id="findByUsername" resultType="com.cm.cmoj.model.entity.User">
+        select * from user where userName=#{username} limit 1
+    </select>
 
+    <!--按id查询User，实际上这个User就应该是博主-->
+    <select id="findById" resultType="com.cm.cmoj.model.entity.User">
+        select * from user where id=#{id} limit 1
+    </select>
+
+    <!--按username修改-->
+    <update id="updateUserByUsername">
+        update user set userName=#{user.username}, userPassword=#{user.password}, update_time=now() where userName=#{username}
+    </update>
     <sql id="Base_Column_List">
         id,unionId,mpOpenId,
         userName,userAvatar,userProfile,

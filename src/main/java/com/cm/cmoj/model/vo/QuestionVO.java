@@ -34,7 +34,10 @@ public class QuestionVO implements Serializable {
      * 内容
      */
     private String content;
-
+    /**
+     * 难度
+     */
+    private String difficulty;
     /**
      * 标签列表（json 数组）
      */
@@ -48,14 +51,6 @@ public class QuestionVO implements Serializable {
      */
     private Integer acceptedNum;
 
-    /**
-     * 点赞数
-     */
-    private Integer thumbNum;
-    /**
-     * 收藏数
-     */
-    private Integer favourNum;
     /**
      * 创建用户id
      */

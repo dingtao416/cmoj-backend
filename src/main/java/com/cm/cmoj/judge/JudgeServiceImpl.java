@@ -83,7 +83,7 @@ public class JudgeServiceImpl implements JudgeService {
         questionSubmitUpdate = new QuestionSubmit();
         questionSubmitUpdate.setId(questionSubmitId);
         // 编译失败
-        if(executeCodeResponse.getStatus() == 0){
+        if(executeCodeResponse.getStatus() == 3){
             questionSubmitUpdate.setStatus(QuestionSubmitStatusEnum.FAILED.getValue());
         }else{
             questionSubmitUpdate.setStatus(QuestionSubmitStatusEnum.SUCCESS.getValue());

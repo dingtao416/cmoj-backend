@@ -1,13 +1,9 @@
 package com.cm.cmoj.model.dto.question;
 
-import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
-import lombok.Value;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -33,7 +29,10 @@ public class QuestionAddRequest implements Serializable {
      * 标签列表（json 数组）
      */
     private List<String> tags;
-
+    /**
+     * 难度
+     */
+    private String difficulty;
     /**
      * 题目答案
      */

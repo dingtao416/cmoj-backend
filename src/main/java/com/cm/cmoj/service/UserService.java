@@ -2,14 +2,15 @@ package com.cm.cmoj.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.cm.cmoj.exception.NotFoundException;
 import com.cm.cmoj.model.dto.user.UserQueryRequest;
+import com.cm.cmoj.model.entity.User;
 import com.cm.cmoj.model.vo.LoginUserVO;
 import com.cm.cmoj.model.vo.UserVO;
-import com.cm.cmoj.model.entity.User;
-
-import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * 用户服务
@@ -118,5 +119,10 @@ public interface UserService extends IService<User> {
      * @return
      */
     QueryWrapper<User> getQueryWrapper(UserQueryRequest userQueryRequest);
+
+    User loadUserByUsername(String username) throws NotFoundException;
+
+    User findUserById(Long id);
+
 
 }

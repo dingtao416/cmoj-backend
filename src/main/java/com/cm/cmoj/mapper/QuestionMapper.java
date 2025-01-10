@@ -1,7 +1,8 @@
 package com.cm.cmoj.mapper;
 
-import com.cm.cmoj.model.entity.Question;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.cm.cmoj.model.entity.Question;
+import org.apache.ibatis.annotations.Mapper;
 
 /**
 * @author 86166
@@ -9,6 +10,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 * @createDate 2023-09-16 19:15:19
 * @Entity com.cm.cmoj.model.entity.Question
 */
+@Mapper
 public interface QuestionMapper extends BaseMapper<Question> {
 
 }

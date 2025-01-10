@@ -1,6 +1,4 @@
 package com.cm.cmoj.service;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.cm.cmoj.common.BaseResponse;
 import com.cm.cmoj.model.entity.AiIntelligent;

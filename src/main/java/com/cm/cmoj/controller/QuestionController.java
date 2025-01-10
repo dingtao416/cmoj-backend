@@ -10,7 +10,6 @@ import com.cm.cmoj.constant.UserConstant;
 import com.cm.cmoj.exception.BusinessException;
 import com.cm.cmoj.exception.ThrowUtils;
 import com.cm.cmoj.model.dto.question.*;
-
 import com.cm.cmoj.model.dto.questionsubmit.QuestionSubmitAddRequest;
 import com.cm.cmoj.model.dto.questionsubmit.QuestionSubmitQueryRequest;
 import com.cm.cmoj.model.entity.Question;
@@ -30,7 +29,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -87,8 +85,6 @@ public class QuestionController {
         questionService.validQuestion(question, true);
         User loginUser = userService.getLoginUser(request);
         question.setUserId(loginUser.getId());
-        question.setFavourNum(0);
-        question.setThumbNum(0);
         boolean result = questionService.save(question);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         long newQuestionId = question.getId();
@@ -151,6 +147,7 @@ public class QuestionController {
         if (judgeCase!=null ){
             question.setJudgeCase(GSON.toJson(judgeCase));
         }
+        question.setDifficulty(questionUpdateRequest.getDifficulty());
         // 参数校验
         questionService.validQuestion(question, false);
         long id = questionUpdateRequest.getId();

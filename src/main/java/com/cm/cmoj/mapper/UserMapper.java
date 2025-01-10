@@ -10,8 +10,12 @@ import org.apache.ibatis.annotations.Mapper;
  * @author <a href="https://github.com/liyupi">程序员鱼皮</a>
  * @from <a href="https://yupi.icu">编程导航知识星球</a>
  */
-
+@Mapper
 public interface UserMapper extends BaseMapper<User> {
+    User findByUsername(String username);
+    User findById(Long id);
+
+    int updateUserByUsername(String username, User user);
 }
 
 

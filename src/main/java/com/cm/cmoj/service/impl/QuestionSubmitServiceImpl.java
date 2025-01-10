@@ -125,9 +125,11 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
         QuestionSubmitVO questionSubmitVO = QuestionSubmitVO.objToVo(questionSubmit);
         if(loginUser.getId().equals(questionSubmit.getUserId())&& loginUser.getUserRole().equals("admin"))
         {
-            questionSubmitVO.setCode(null);
+            questionSubmitVO.setCode(questionSubmit.getCode());
+            return questionSubmitVO;
         }
-        return questionSubmitVO;
+        return null;
+
     }
 
     /**
@@ -147,6 +149,9 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
         List<QuestionSubmitVO> questionSubmitVOList = questionSubmitList.stream()
                 .map(questionSubmit -> getQuestionSubmitVO(questionSubmit,loginUser))
                 .collect(Collectors.toList());
+        for(QuestionSubmitVO questionSubmitVO:questionSubmitVOList){
+            questionSubmitVO.setQuestionName(questionService.getById(questionSubmitVO.getQuestionId()).getTitle());
+        }
         questionSubmitVOPage.setRecords(questionSubmitVOList);
         return questionSubmitVOPage;
     }

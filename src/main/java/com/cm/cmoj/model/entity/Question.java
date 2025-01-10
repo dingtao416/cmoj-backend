@@ -1,10 +1,10 @@
 package com.cm.cmoj.model.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
-import lombok.Data;
 
 /**
  * 题目
@@ -40,16 +40,6 @@ public class Question implements Serializable {
     private String answer;
 
     /**
-     * 点赞数
-     */
-    private Integer thumbNum;
-
-    /**
-     * 收藏数
-     */
-    private Integer favourNum;
-
-    /**
      * 题目提交数
      */
     private Integer submitNum;
@@ -73,6 +63,10 @@ public class Question implements Serializable {
      * 创建用户 id
      */
     private Long userId;
+    /**
+     * 难度
+     */
+    private String difficulty;
 
     /**
      * 创建时间
@@ -110,8 +104,6 @@ public class Question implements Serializable {
             && (this.getContent() == null ? other.getContent() == null : this.getContent().equals(other.getContent()))
             && (this.getTags() == null ? other.getTags() == null : this.getTags().equals(other.getTags()))
             && (this.getAnswer() == null ? other.getAnswer() == null : this.getAnswer().equals(other.getAnswer()))
-            && (this.getThumbNum() == null ? other.getThumbNum() == null : this.getThumbNum().equals(other.getThumbNum()))
-            && (this.getFavourNum() == null ? other.getFavourNum() == null : this.getFavourNum().equals(other.getFavourNum()))
             && (this.getSubmitNum() == null ? other.getSubmitNum() == null : this.getSubmitNum().equals(other.getSubmitNum()))
             && (this.getAcceptedNum() == null ? other.getAcceptedNum() == null : this.getAcceptedNum().equals(other.getAcceptedNum()))
             && (this.getJudgeCase() == null ? other.getJudgeCase() == null : this.getJudgeCase().equals(other.getJudgeCase()))
@@ -131,8 +123,6 @@ public class Question implements Serializable {
         result = prime * result + ((getContent() == null) ? 0 : getContent().hashCode());
         result = prime * result + ((getTags() == null) ? 0 : getTags().hashCode());
         result = prime * result + ((getAnswer() == null) ? 0 : getAnswer().hashCode());
-        result = prime * result + ((getThumbNum() == null) ? 0 : getThumbNum().hashCode());
-        result = prime * result + ((getFavourNum() == null) ? 0 : getFavourNum().hashCode());
         result = prime * result + ((getSubmitNum() == null) ? 0 : getSubmitNum().hashCode());
         result = prime * result + ((getAcceptedNum() == null) ? 0 : getAcceptedNum().hashCode());
         result = prime * result + ((getJudgeCase() == null) ? 0 : getJudgeCase().hashCode());
@@ -155,8 +145,6 @@ public class Question implements Serializable {
         sb.append(", content=").append(content);
         sb.append(", tags=").append(tags);
         sb.append(", answer=").append(answer);
-        sb.append(", thumbNum=").append(thumbNum);
-        sb.append(", favourNum=").append(favourNum);
         sb.append(", submitNum=").append(submitNum);
         sb.append(", acceptedNum=").append(acceptedNum);
         sb.append(", judgeCase=").append(judgeCase);
