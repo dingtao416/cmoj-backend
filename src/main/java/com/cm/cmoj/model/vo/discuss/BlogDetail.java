@@ -33,7 +33,7 @@ public class BlogDetail {
 	private Integer words;//文章字数
 	private Integer readTime;//阅读时长(分钟)
 	private String password;//密码保护
-    private String userId;
+    private Long userId;
 	private Category category;//文章分类
 	private List<Tag> tags = new ArrayList<>();//文章标签
 }

@@ -41,7 +41,7 @@ public class CommentUtils {
 	/**
 	 * 新评论是否默认公开
 	 */
-	private Boolean commentDefaultOpen;
+	private Boolean commentDefaultOpen = true;
 
 	@Autowired
 	public void setBlogService(BlogService blogService) {
@@ -122,24 +122,12 @@ public class CommentUtils {
 	 */
 	public static CommentPageEnum getCommentPageEnum(Comment comment) {
 		CommentPageEnum commentPageEnum = CommentPageEnum.UNKNOWN;
-		switch (comment.getPage()) {
-			case 0:
+
 				//普通博客
 				commentPageEnum = CommentPageEnum.BLOG;
 				commentPageEnum.setTitle(blogService.getTitleByBlogId(comment.getBlogId()));
 				commentPageEnum.setPath("/blog/" + comment.getBlogId());
-				break;
-			case 1:
-				//关于我页面
-				commentPageEnum = CommentPageEnum.ABOUT;
-				break;
-			case 2:
-				//友链页面
-				commentPageEnum = CommentPageEnum.FRIEND;
-				break;
-			default:
-				break;
-		}
+
 		return commentPageEnum;
 	}
 
@@ -201,14 +189,13 @@ public class CommentUtils {
 	 * @param admin   博主信息
 	 */
 	private void setGeneralAdminComment(Comment comment, User admin) {
+		comment.setUserId(admin.getId());
 		comment.setAdminComment(true);
 		comment.setCreateTime(new Date());
 		comment.setPublished(true);
 		comment.setAvatar(admin.getUserAvatar());
 		comment.setWebsite("/");
 		comment.setNickname(admin.getUserName());
-		comment.setEmail(admin.getEmail());
-		comment.setNotice(false);
 	}
 
 	/**
@@ -241,18 +228,14 @@ public class CommentUtils {
 	 * @param comment 当前收到的评论
 	 * @param request 用于获取ip
 	 */
-	public void setVisitorComment(Comment comment, HttpServletRequest request) {
-		comment.setNickname(comment.getNickname().trim());
-		setCommentRandomAvatar(comment);
-
-		//check website
-		if (!isValidUrl(comment.getWebsite())) {
+	public void setVisitorComment(Comment comment, HttpServletRequest request,User user) {
+		comment.setNickname(user.getUserName().trim());
+		comment.setUserId(user.getId());
+		comment.setAvatar(user.getUserAvatar());
 			comment.setWebsite("");
-		}
 		comment.setAdminComment(false);
 		comment.setCreateTime(new Date());
 		comment.setPublished(commentDefaultOpen);
-		comment.setEmail(comment.getEmail().trim());
 		comment.setIp(IpAddressUtils.getIpAddress(request));
 	}
 

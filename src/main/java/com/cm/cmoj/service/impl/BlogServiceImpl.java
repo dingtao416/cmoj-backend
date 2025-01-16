@@ -9,6 +9,7 @@ import com.cm.cmoj.model.vo.discuss.*;
 import com.cm.cmoj.service.BlogService;
 import com.cm.cmoj.service.RedisService;
 import com.cm.cmoj.service.TagService;
+import com.cm.cmoj.service.UserService;
 import com.cm.cmoj.utils.JacksonUtils;
 import com.cm.cmoj.utils.markdown.MarkdownUtils;
 import com.github.pagehelper.PageHelper;
@@ -48,6 +49,8 @@ public class BlogServiceImpl implements BlogService {
 	private static final String orderBy = "is_top desc, create_time desc";
 	//私密博客提示
 	private static final String PRIVATE_BLOG_DESCRIPTION = "此文章受密码保护！";
+    @Autowired
+    private UserService userService;
 
 	/**
 	 * 项目启动时，保存所有博客的浏览量到Redis
@@ -111,13 +114,31 @@ public class BlogServiceImpl implements BlogService {
 	}
 
 	@Override
-	public PageResult<BlogInfo> getBlogInfoListByIsPublished(Integer pageNum) {
+	public PageResult<BlogInfo> getBlogInfoListByIsPublished(Integer pageNum,String categoryId,String title,String userId) {
+		Long categoryIds = null;
+		Long userIds = null;
+		if (categoryId != null && !categoryId.isEmpty()) {
+			try {
+				categoryIds = Long.parseLong(categoryId);
+			} catch (NumberFormatException e) {
+				categoryIds = null;
+			}
+		}
+		if (userId != null && !userId.isEmpty()) {
+			try {
+				userIds = Long.parseLong(userId);
+			} catch (NumberFormatException e) {
+				userIds = null;
+			}
+		}
 		PageHelper.startPage(pageNum, pageSize, orderBy);
-		List<BlogInfo> blogInfos = blogMapper.getBlogInfoListByIsPublished();
-
+		List<BlogInfo> blogInfos = blogMapper.getBlogInfoListByIsPublished(title,categoryIds,userIds);
 		//设置讨论 标签
 		for (BlogInfo blogInfo : blogInfos) {
 			blogInfo.setTags(tagService.getTagListByBlogId(blogInfo.getId()));
+		}
+		for (BlogInfo blogInfo : blogInfos) {
+			blogInfo.setUserAvatar(userService.findUserById(blogInfo.getUserId()).getUserAvatar());
 		}
 		PageInfo<BlogInfo> pageInfo = new PageInfo<>(blogInfos);
 		PageResult<BlogInfo> pageResult = new PageResult<>(pageInfo.getPages(), pageInfo.getList());
@@ -321,18 +342,11 @@ public class BlogServiceImpl implements BlogService {
 	}
 
 	@Override
-	public Blog getBlogById(Long id) {
-		Blog blog = blogMapper.getBlogById(id);
+	public BlogDetail getBlogById(Long id) {
+		BlogDetail blog = blogMapper.getBlogByIdAndIsPublished(id);
 		if (blog == null) {
 			throw new RuntimeException("博客不存在");
 		}
-		/**
-		 * 将浏览量设置为Redis中的最新值
-		 * 这里如果出现异常，查看第 152 行注释说明
-		 * @see BlogServiceImpl#setBlogViewsFromRedisToPageResult
-		 */
-		int view = (int) redisService.getValueByHashKey(RedisKeyConstants.BLOG_VIEWS_MAP, blog.getId());
-		blog.setViews(view);
 		return blog;
 	}
 

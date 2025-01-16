@@ -81,9 +81,7 @@ public class TelegramChannel implements CommentNotifyChannel {
 				comment.getContent(),
 				comment.getId(),
 				comment.getIp(),
-				StringUtils.isEmpty(comment.getQq()) ? "" : "QQ：" + comment.getQq() + "\n",
 				simpleDateFormat.format(comment.getCreateTime()),
-				comment.getEmail(),
 				StringUtils.isEmpty(comment.getWebsite()) ? "" : "网站：" + comment.getWebsite() + "\n",
 				comment.getPublished() ? "公开" : "待审核",
 				blogProperties.getCms() + "/blog/comment/list"

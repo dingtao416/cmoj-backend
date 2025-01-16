@@ -35,8 +35,7 @@ public class Blog {
 	private Integer words;//文章字数
 	private Integer readTime;//阅读时长(分钟)
 	private String password;//密码保护
-
-	private User user;//文章作者(因为是个人博客，也可以不加作者字段，暂且加上)
+	private Long userId;//文章作者(因为是个人博客，也可以不加作者字段，暂且加上)
 	private Category category;//文章分类
 	private List<Tag> tags = new ArrayList<>();//文章标签
 }

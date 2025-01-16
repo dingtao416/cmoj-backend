@@ -16,7 +16,7 @@ public interface BlogService {
 	List<Blog> getIdAndTitleList();
 
 	List<NewBlog> getNewBlogListByIsPublished();
-	PageResult<BlogInfo> getBlogInfoListByIsPublished(Integer pageNum);
+	PageResult<BlogInfo> getBlogInfoListByIsPublished(Integer pageNum,String categoryId,String title,String userId);
 
 	PageResult<BlogInfo> getBlogInfoListByCategoryNameAndIsPublished(String categoryName, Integer pageNum);
 
@@ -44,7 +44,7 @@ public interface BlogService {
 
 	void updateViews(Long blogId, Integer views);
 
-	Blog getBlogById(Long id);
+	BlogDetail getBlogById(Long id);
 
 	String getTitleByBlogId(Long id);
 

@@ -1,7 +1,7 @@
 package com.cm.cmoj.model.dto.discuss;
 
+import com.cm.cmoj.model.entity.Category;
 import com.cm.cmoj.model.entity.Tag;
-import com.cm.cmoj.model.entity.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -38,8 +38,8 @@ public class Blog {
 	private Integer readTime;//阅读时长(分钟)
 	private String password;//密码保护
 
-	private User user;//文章作者(因为是个人博客，也可以不加作者字段，暂且加上)
-//	private Category category;//文章分类
+	private Long userId;//文章作者(因为是个人博客，也可以不加作者字段，暂且加上)
+    private Category category;//文章分类
 	private List<Tag> tags = new ArrayList<>();//文章标签
 
 	private Object cate;//页面展示层传输的分类对象：正常情况下为 字符串 或 分类id

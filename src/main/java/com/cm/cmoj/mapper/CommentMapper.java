@@ -18,7 +18,7 @@ public interface CommentMapper extends BaseMapper<Comment> {
 
 	List<Comment> getListByParentCommentId(Long parentCommentId);
 
-	List<PageComment> getPageCommentListByPageAndParentCommentId(Integer page, Long blogId, Long parentCommentId);
+	List<PageComment> getPageCommentListByPageAndParentCommentId(Long blogId, Long parentCommentId);
 
 	Comment getCommentById(Long id);
 
@@ -32,9 +32,11 @@ public interface CommentMapper extends BaseMapper<Comment> {
 
 	int updateComment(Comment comment);
 
-	int countByPageAndIsPublished(Integer page, Long blogId, Boolean isPublished);
+	int countByPageAndIsPublished(Long blogId, Boolean isPublished);
 
 	int countComment();
 
 	int saveComment(com.cm.cmoj.model.dto.discuss.Comment comment);
+
+	List<PageComment> getAllCommentsByBlogId(Long blogId);
 }

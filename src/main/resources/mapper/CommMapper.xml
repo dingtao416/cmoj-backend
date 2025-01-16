@@ -64,8 +64,7 @@
         select c1.id, c1.nickname, c1.content, c1.avatar, c1.create_time, c1.is_admin_comment, c1.website,
         c1.parent_comment_id as parent_comment_id, c2.nickname as parent_comment_nickname
         from comment as c1 left join comment as c2 on c1.parent_comment_id=c2.id
-        where c1.page=#{page}
-        <if test="page==0 and blogId!=null">
+        <if test="blogId!=null">
             and c1.blog_id=#{blogId}
         </if>
         and c1.parent_comment_id=#{parentCommentId}
@@ -75,8 +74,8 @@
 
     <!--按id查询评论-->
     <select id="getCommentById" resultMap="comment">
-        select c.id, c.nickname, c.email, c.content, c.avatar, c.create_time, c.ip, c.is_published, c.is_admin_comment, c.page,
-               c.is_notice, c.parent_comment_id, c.website, c.qq, c.blog_id, b.title
+        select c.id, c.nickname, c.content, c.avatar, c.create_time, c.ip, c.is_published, c.is_admin_comment,
+               c.parent_comment_id, c.website, c.blog_id, b.title
         from comment as c left join blog as b on c.blog_id=b.id
         where c.id=#{id}
     </select>
@@ -110,25 +109,42 @@
     <!--按页面查询评论数量-->
     <select id="countByPageAndIsPublished" resultType="java.lang.Integer">
         select count(*) from comment
-        where page=#{page}
-        <if test="isPublished!=null">
-            and is_published=#{isPublished}
-        </if>
-        <if test="page==0 and blogId!=0">
-            and blog_id=#{blogId}
-        </if>
+        <where>
+            <if test="isPublished != null">
+                and is_published = #{isPublished}
+            </if>
+            <if test="blogId != 0">
+                and blog_id = #{blogId}
+            </if>
+                and parent_comment_id = -1
+        </where>
     </select>
+
+
 
     <!--查询所有评论数量-->
     <select id="countComment" resultType="java.lang.Integer">
         select count(*) from comment
     </select>
+    <select id="getAllCommentsByBlogId" resultType="com.cm.cmoj.model.vo.discuss.PageComment">
+        select c1.id, c1.nickname, c1.content, c1.avatar, c1.create_time, c1.is_admin_comment as adminComment,  c1.website,c1.create_time as createTime,
+        c1.parent_comment_id as parentCommentId
+        from comment as c1
+        <where>
+            <if test="blogId != null">
+                and c1.blog_id = #{blogId}
+            </if>
+            and c1.is_published = true
+        </where>
+        order by c1.create_time desc
+    </select>
+
 
     <!--保存评论-->
     <insert id="saveComment" useGeneratedKeys="true" keyProperty="id">
-        insert into comment (nickname, email, content, avatar, create_time, website, ip, is_published, is_admin_comment,
-                             page, is_notice, parent_comment_id, blog_id, qq)
-        values (#{nickname}, #{email}, #{content}, #{avatar}, #{createTime}, #{website}, #{ip}, #{published}, #{adminComment},
-                #{page}, #{notice}, #{parentCommentId}, #{blogId}, #{qq})
+        insert into comment (nickname ,content, avatar, create_time, website, ip, is_published, is_admin_comment
+                             , parent_comment_id, blog_id)
+        values (#{nickname}, #{content}, #{avatar}, #{createTime}, #{website}, #{ip}, #{published}, #{adminComment}
+            , #{parentCommentId}, #{blogId})
     </insert>
 </mapper>

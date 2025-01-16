@@ -200,7 +200,6 @@ public class TelegramBotMsgHandler {
 			//父评论所在页面
 			Integer page = parentComment.getPage();
 			Long blogId = page == 0 ? parentComment.getBlog().getId() : null;
-			comment.setPage(page);
 			comment.setBlogId(blogId);
 			commentUtils.setAdminCommentByTelegramAction(comment);
 
@@ -228,7 +227,6 @@ public class TelegramBotMsgHandler {
 					comment.getId(),
 					comment.getIp(),
 					simpleDateFormat.format(comment.getCreateTime()),
-					comment.getEmail(),
 					comment.getPublished() ? "公开" : "待审核",
 					blogProperties.getCms() + "/blog/comment/list"
 			);

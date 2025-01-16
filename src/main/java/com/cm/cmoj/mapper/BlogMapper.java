@@ -24,7 +24,7 @@ public interface BlogMapper extends BaseMapper<Blog> {
 
 	List<NewBlog> getNewBlogListByIsPublished();
 
-	List<BlogInfo> getBlogInfoListByIsPublished();
+	List<BlogInfo> getBlogInfoListByIsPublished(String title,Long categoryId,Long userId);
 
 	List<BlogInfo> getBlogInfoListByCategoryNameAndIsPublished(String categoryName);
 
@@ -54,7 +54,6 @@ public interface BlogMapper extends BaseMapper<Blog> {
 
 	int updateViews(Long blogId, Integer views);
 
-	Blog getBlogById(Long id);
 
 	String getTitleByBlogId(Long id);
 

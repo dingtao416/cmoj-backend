@@ -9,7 +9,7 @@ import java.util.List;
 public interface CommentService {
 	List<Comment> getListByPageAndParentCommentId(Integer page, Long blogId, Long parentCommentId);
 
-	List<PageComment> getPageCommentList(Integer page, Long blogId, Long parentCommentId);
+	List<PageComment> getPageCommentList( Long blogId, Long parentCommentId);
 
 	Comment getCommentById(Long id);
 
@@ -23,7 +23,7 @@ public interface CommentService {
 
 	void updateComment(Comment comment);
 
-	int countByPageAndIsPublished(Integer page, Long blogId, Boolean isPublished);
+	int countByPageAndIsPublished(Long blogId, Boolean isPublished);
 
 	void saveComment(com.cm.cmoj.model.dto.discuss.Comment comment);
 }

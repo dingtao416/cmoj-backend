@@ -1,7 +1,6 @@
 package com.cm.cmoj.controller;
 
 import com.cm.cmoj.model.entity.Tag;
-import com.cm.cmoj.model.entity.User;
 import com.cm.cmoj.model.vo.discuss.*;
 import com.cm.cmoj.service.BlogService;
 import com.cm.cmoj.service.CommentService;
@@ -37,8 +36,9 @@ public class BlogController {
 	 */
 	
 	@GetMapping("/blogs")
-	public Result blogs(@RequestParam(defaultValue = "1") Integer pageNum) {
-		PageResult<BlogInfo> pageResult = blogService.getBlogInfoListByIsPublished(pageNum);
+	public Result blogs(@RequestParam(defaultValue = "1") Integer pageNum, @RequestParam String categoryId,
+						@RequestParam String title,@RequestParam String userId) {
+		PageResult<BlogInfo> pageResult = blogService.getBlogInfoListByIsPublished(pageNum,categoryId,title,userId);
 		return Result.ok("请求成功", pageResult);
 	}
 
@@ -131,9 +131,7 @@ public class BlogController {
 		if ("save".equals(type)) {
 			blog.setCreateTime(date);
 			blog.setUpdateTime(date);
-			User user = new User();
-			user.setId(1L);//个人博客默认只有一个作者
-			blog.setUser(user);
+			blog.setUserId(blog.getUserId());
 			blogService.saveBlog(blog);
 			//关联博客和标签(维护 blog_tag 表)
 			for (Tag t : tags) {

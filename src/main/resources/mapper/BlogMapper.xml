@@ -18,17 +18,7 @@
         <result property="views" column="views"/>
         <result property="words" column="words"/>
         <result property="readTime" column="read_time"/>
-        <result property="password" column="password"/>
-        <association property="user" javaType="com.cm.cmoj.model.entity.User">
-            <id property="id" column="user_id"/>
-            <result property="userAccount" column="userAccount"/>
-            <result property="userName" column="userName"/>
-            <result property="userAvatar" column="userAvatar"/>
-            <result property="email" column="email"/>
-            <result property="createTime" column="user_create_time"/>
-            <result property="updateTime" column="user_update_time"/>
-            <result property="userRole" column="role"/>
-        </association>
+        <result property="userId" column="user_id"/>
         <association property="category" javaType="com.cm.cmoj.model.entity.Category">
             <id property="id" column="category_id"/>
             <result property="name" column="category_name"/>
@@ -105,16 +95,46 @@
         <result property="readTime" column="read_time"/>
         <result property="top" column="is_top"/>
         <result property="password" column="password"/>
+        <result property="userId" column="user_id"/>
+        <result property="firstPicture" column="first_picture"/>
         <association property="category" javaType="com.cm.cmoj.model.entity.Category">
             <result property="name" column="category_name"/>
         </association>
     </resultMap>
-
     <!--查询公开博客的简要信息-->
     <select id="getBlogInfoListByIsPublished" resultMap="blogInfo">
-        select b.id, b.title, b.description, b.is_top, b.create_time, b.views, b.words, b.read_time, b.password, c.category_name
-        from blog as b left join category as c on b.category_id=c.id
-        where b.is_published=true
+        SELECT
+        b.id,
+        b.title,
+        b.description,
+        b.is_top,
+        b.create_time,
+        b.views,
+        b.words,
+        b.read_time,
+        b.password,
+        b.user_id,
+        c.category_name,
+        b.first_picture
+        FROM
+        blog AS b
+        LEFT JOIN
+        category AS c
+        ON
+        b.category_id = c.id
+        WHERE
+        b.is_published = TRUE
+        <if test="title != null and title != ''">
+            AND b.title LIKE CONCAT('%', #{title}, '%')
+        </if>
+        <if test="categoryId != null and categoryId != ''">
+            AND b.category_id = #{categoryId}
+        </if>
+        <if test="userId != null and userId != ''">
+            AND b.user_id = #{userId}
+        </if>
+        ORDER BY
+        b.create_time DESC
     </select>
 
     <!--根据分类name查询公开博客List-->
@@ -196,7 +216,7 @@
         insert into blog (title, first_picture, content, description, is_published, is_recommend, is_appreciation, is_comment_enabled,
                           is_top, create_time, update_time, views, words, read_time, category_id, user_id, password)
         values (#{title}, #{firstPicture}, #{content}, #{description}, #{published}, #{recommend}, #{appreciation}, #{commentEnabled},
-                #{top}, #{createTime}, #{updateTime}, #{views}, #{words}, #{readTime}, #{category.id}, #{user.id}, #{password})
+                #{top}, #{createTime}, #{updateTime}, #{views}, #{words}, #{readTime}, #{category.id}, #{userId}, #{password})
     </insert>
 
     <!--更新博客推荐状态-->
@@ -220,16 +240,6 @@
     <update id="updateViews">
         update blog set views=#{views} where id=#{blogId}
     </update>
-
-    <!--按id查询博客-->
-    <select id="getBlogById" resultMap="blog">
-        select b.id, b.title, b.first_picture, b.content, b.description, b.is_recommend, b.is_published, b.is_appreciation,
-               b.is_comment_enabled, b.is_top, b.create_time, b.update_time, b.views, b.words, b.read_time, b.password,
-               c.id as category_id, c.category_name,
-               bt.tag_id as tag_id, t.tag_name as tag_name, t.color
-        from (((blog as b left join category as c on b.category_id=c.id) left join blog_tag as bt on b.id=bt.blog_id) left join tag as t on bt.tag_id=t.id)
-        where b.id=#{id}
-    </select>
 
     <!--按id查询博客标题-->
     <select id="getTitleByBlogId" resultType="java.lang.String">
