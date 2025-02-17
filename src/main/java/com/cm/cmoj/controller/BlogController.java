@@ -30,7 +30,7 @@ public class BlogController {
 
 	/**
 	 * 按置顶、创建时间排序 分页查询博客简要信息列表
-	 *
+	 *；。。。
 	 * @param pageNum 页码
 	 * @return
 	 */

@@ -70,8 +70,7 @@ public class MarkdownUtils {
 			// 为懒加载提供属性
 			if (node instanceof Image) {
 				Image n = (Image) node;
-				attributes.put("data-src", n.getDestination());
-				attributes.remove("src");
+				attributes.put("src", n.getDestination()); // 使用原始的 src 属性
 			}
 			//改变a标签的target属性为_blank
 			if (node instanceof Link) {
